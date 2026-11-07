@@ -38,3 +38,15 @@ Arrival date input currently uses the displayed Pacific standard time offset (UT
 Parking predictions use historical City of San Diego payment transactions, not live space sensors. Availability is not guaranteed. Check posted restrictions and signs.
 
 Map tiles and address search use OpenStreetMap services. Parking data and chat use the configured backend.
+
+## Expanded discovery backend
+
+App1 now includes a Node service in server/discovery.mjs:
+- GET /discovery/places?q=Target returns individual businesses with addresses and coordinates.
+- GET /discovery/parking?lat=32.8222914&lon=-117.1785676&radius_m=1000 returns mapped parking facilities.
+
+The service runs automatically inside Vite for development. For production run npm run build, then npm start. Deploy as a Node web service (render.yaml supplied), not a static site; the discovery endpoints require a server. The separate Render meter prediction service is unchanged.
+
+Place lookup uses Nominatim/OpenStreetMap, with serialized upstream requests and a 10-minute bounded cache. This is suitable for a small deployment; use a dedicated geocoder for larger traffic. Discovery is not exhaustive. Private/no-access facilities are excluded; customer-only and unknown access are labeled. Facility coordinates may be centroids rather than vehicle entrances. Counts represent total capacity, never live vacancies.
+
+No live camera source was verified or integrated. No camera-based availability claims are made.
