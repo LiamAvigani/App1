@@ -4,7 +4,7 @@ const entries=[
  ["unlikely","Unlikely","Under 30% estimated"],
  ["free","Reported off-hours","Vacancy unknown"],
  ["unknown","Unknown","No availability data"],
- ["destination","Destination","Your search location"]
+ ["destination","Destination","Your movable search pin"]
 ];
 export default function MapLegend(){
  return <section className="map-legend legend-horizontal" aria-label="Parking color guide">

@@ -33,7 +33,7 @@ export default function App(){
  const streetOptions=useMemo(()=>{const counts=new Map();candidates.forEach(p=>{const name=streetName(p);counts.set(name,(counts.get(name)||0)+1)});return [...counts].sort((a,b)=>a[0].localeCompare(b[0]));},[candidates]);
  const filtered=useMemo(()=>filterByStreet(candidates,street),[candidates,street]);
  const results=filtered.slice(0,shown);
- const mapCenter=chat?.query?{lat:chat.query.lat,lng:chat.query.lon,name:"your requested destination"}:center;
+ const mapCenter=chat?.query?{lat:chat.query.lat,lng:chat.query.lon,name:chat.destination_name||"your requested destination"}:center;
 
  useEffect(()=>{
   const controller=new AbortController();setFacilities([]);setFacilityError("");setFacilityLoading(true);
@@ -49,7 +49,7 @@ export default function App(){
  navigator.geolocation.getCurrentPosition(p=>{move({lat:p.coords.latitude,lng:p.coords.longitude,name:"Your location"});setSearchError("")},()=>setSearchError("Location unavailable. Search an address or click the map."),{timeout:15000})}
  return <div className="app"><header><a className="brand" href="/"><span className="logo">P</span>ParkingPilot <small>SD</small></a><span className="header-note">Less circling. More exploring.</span></header><nav className="mobile-switch" aria-label="Parking view"><button type="button" aria-pressed={mobileView==="chat"} onClick={()=>setMobileView("chat")}>Chat & results</button><button type="button" aria-pressed={mobileView==="map"} onClick={()=>setMobileView("map")}>Map <span>{results.length}</span></button></nav><main className={"view-"+mobileView} style={{"--sidebar-width":sidebarWidth+"px"}}><aside id="parking-sidebar">
  <div className="intro"><span className="eyebrow">SAN DIEGO PARKING</span><h1>Where to?</h1><p>A conversation away from your next parking option.</p></div>
- <ParkingChat center={mapCenter} streets={streetOptions.map(([name])=>name)} onLocate={locate} onResults={applyChat}/>
+ <ParkingChat key={center.lat+","+center.lng} onDestination={target=>{setSelected(null);setStreet("all");setChat({results:[],destination_name:target.name,query:{lat:target.lat,lon:target.lng,radius_m:radius}})}} center={mapCenter} streets={streetOptions.map(([name])=>name)} onLocate={locate} onResults={applyChat}/>
  <p className="notice" role="status">{searchError}</p>
  <details className="manual-controls"><summary>Fine-tune or choose an exact place</summary>
  <form onSubmit={search}><label htmlFor="destination">Where are you going?</label><div className="search"><input id="destination" value={query} onChange={e=>setQuery(e.target.value)} placeholder="Try Target, a venue, or a full address" required/><button disabled={searching}>{searching?"…":"Search"}</button></div></form>

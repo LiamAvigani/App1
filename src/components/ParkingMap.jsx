@@ -1,5 +1,5 @@
 import {parkingColor} from "../parkingColors";
-﻿import { useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 export default function ParkingMap({center,radius,places,selected,onSelect,onCenter}){
@@ -19,7 +19,10 @@ export default function ParkingMap({center,radius,places,selected,onSelect,onCen
  useEffect(()=>{
   const group=layer.current;group.clearLayers();
   L.circle([center.lat,center.lng],{radius:radius*1609.344,color:"#25745b",weight:1,fillOpacity:.045,dashArray:"6 6",interactive:false}).addTo(group);
-  L.circleMarker([center.lat,center.lng],{radius:7,color:"white",weight:3,fillColor:"#172e45",fillOpacity:1,interactive:false}).addTo(group);
+  const destination=L.marker([center.lat,center.lng],{draggable:true,title:"Destination: "+center.name,icon:L.divIcon({className:"",html:'<span class="destination-pin">◎</span>',iconSize:[34,40],iconAnchor:[17,40]})}).addTo(group);
+  const destinationLabel=document.createElement("span");destinationLabel.textContent=center.name+" (drag to move)";destination.bindTooltip(destinationLabel);
+  destination.on("dragend",()=>{const point=destination.getLatLng();callbacks.current.onCenter({lat:point.lat,lng:point.lng,name:"Dropped pin"})});
+
   const focused=places.find(p=>p.id===selected);
   const visiblePlaces=focused?[focused]:places;
   visiblePlaces.forEach(p=>{
