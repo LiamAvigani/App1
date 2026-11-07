@@ -19,7 +19,9 @@ export default function ParkingMap({center,radius,places,selected,onSelect,onCen
   const group=layer.current;group.clearLayers();
   L.circle([center.lat,center.lng],{radius:radius*1609.344,color:"#25745b",weight:1,fillOpacity:.045,dashArray:"6 6",interactive:false}).addTo(group);
   L.circleMarker([center.lat,center.lng],{radius:7,color:"white",weight:3,fillColor:"#172e45",fillOpacity:1,interactive:false}).addTo(group);
-  places.forEach(p=>{
+  const focused=places.find(p=>p.id===selected);
+  const visiblePlaces=focused?[focused]:places;
+  visiblePlaces.forEach(p=>{
    const icon=L.divIcon({className:"",html:'<span class="map-pin '+(p.id===selected?'selected':'')+' '+(p.status==='unmetered_now'?'free':p.availability?.band||'unknown')+'">P</span>',iconSize:[32,36],iconAnchor:[16,36]});
    const marker=L.marker([p.lat,p.lng],{icon,keyboard:true,title:p.tags.name||"Parking"}).addTo(group);
    marker.on("click",()=>callbacks.current.onSelect(p.id));
