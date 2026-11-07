@@ -35,10 +35,10 @@ export async function handler(req,res,next){
  const lat=Number(url.searchParams.get("lat")),lon=Number(url.searchParams.get("lon")),radius=Number(url.searchParams.get("radius_m")||1000);
  if(!url.searchParams.has("lat")||!url.searchParams.has("lon")||!Number.isFinite(lat)||lat<32.5||lat>33.3||!Number.isFinite(lon)||lon< -117.6||lon> -116.8||!Number.isFinite(radius)||radius<50||radius>2000)return send(400,{detail:"Choose a San Diego location and a distance between 50 and 2000 meters."});
  const dy=radius/111320,dx=dy/Math.cos(lat*Math.PI/180);
- const data=await geocode(new URLSearchParams({q:"[parking]",format:"jsonv2",extratags:"1",limit:"40",bounded:"1",viewbox:[lon-dx,lat+dy,lon+dx,lat-dy].join(",")}));
+ const data=await geocode(new URLSearchParams({q:"[parking]",format:"jsonv2",addressdetails:"1",extratags:"1",limit:"40",bounded:"1",viewbox:[lon-dx,lat+dy,lon+dx,lat-dy].join(",")}));
  const results=data.map(p=>{
  const t=p.extratags||{},d=distance(lat,lon,+p.lat,+p.lon);
- return {id:"osm-"+p.osm_type+"-"+p.osm_id,lat:+p.lat,lng:+p.lon,miles:d/1609.344,distance_m:d,walk_minutes:Math.round(d/80),kind:t.parking==="multi-storey"||t.parking==="underground"?"garage":"lot",source:"OpenStreetMap",source_url:"https://www.openstreetmap.org/"+p.osm_type+"/"+p.osm_id,access:t.access||"unknown",capacity:t.capacity||null,hours:t.opening_hours||null,status:"mapped",availability:{p_available:null,band:"unknown"},tags:{name:p.name||"Parking facility",fee:t.fee==="no"?"no":t.fee==="yes"?"yes":"unknown"},address:p.display_name};
+ return {id:"osm-"+p.osm_type+"-"+p.osm_id,lat:+p.lat,lng:+p.lon,miles:d/1609.344,distance_m:d,walk_minutes:Math.round(d/80),kind:t.parking==="multi-storey"||t.parking==="underground"?"garage":"lot",source:"OpenStreetMap",source_url:"https://www.openstreetmap.org/"+p.osm_type+"/"+p.osm_id,access:t.access||"unknown",capacity:t.capacity||null,hours:t.opening_hours||null,status:"mapped",availability:{p_available:null,band:"unknown"},tags:{name:p.name||"Parking facility",fee:t.fee==="no"?"no":t.fee==="yes"?"yes":"unknown"},street:p.address?.road||p.address?.pedestrian||p.address?.residential||"",address:p.display_name};
  }).filter(p=>p.distance_m<=radius&&!["private","no"].includes(p.access)).sort((a,b)=>a.distance_m-b.distance_m);
  return send(200,{results,notice:"Mapped facilities, not live availability. Coverage may be incomplete. Check access and posted restrictions."});
  }
