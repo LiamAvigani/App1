@@ -135,3 +135,34 @@ footer{font-size:11px}
 .card-main>.parking-icon{margin-top:3px}
 .card-main>strong{padding-top:3px}
 @media(max-width:359px){.parking-metric{flex-basis:95px}.card .metric-value{font-size:24px}}
+
+/* One status palette for list badges, map pins and legend swatches. */
+.parking-icon.likely,.map-pin.likely,.legend-swatch.likely{background:#2a7051;color:white}
+.parking-icon.possible,.map-pin.possible,.legend-swatch.possible{background:#b08023;color:white}
+.parking-icon.unlikely,.map-pin.unlikely,.legend-swatch.unlikely{background:#c6534f;color:white}
+.parking-icon.free,.map-pin.free,.legend-swatch.free{background:#3b82b6;color:white}
+.parking-icon.unknown,.map-pin.unknown,.legend-swatch.unknown{background:#76827a;color:white}
+.parking-icon{display:grid;place-items:center;flex-shrink:0;min-width:32px;min-height:36px;font-weight:800;border:1px solid #ffffff80;box-shadow:0 2px 5px #233d3515}
+.card.active .parking-icon{outline:2px solid #172e45;outline-offset:2px}
+.map-panel{display:flex;flex-direction:column}
+.map-canvas{position:relative;flex:1;min-height:0;min-width:0;isolation:isolate}
+.map-legend.legend-horizontal{position:relative;left:auto;bottom:auto;top:auto;width:100%;max-width:none;flex-shrink:0;z-index:1;border:0;border-bottom:1px solid #dce6d7;border-radius:0;box-shadow:none;padding:12px 16px;background:#fff}
+.legend-heading{display:flex;align-items:baseline;flex-wrap:wrap;gap:6px 14px;margin-bottom:10px}
+.legend-heading>strong{font-size:12px;color:#233d35}
+.legend-heading>span{font-size:10px;color:#62715c;line-height:1.5}
+.legend-row{display:flex;flex-wrap:wrap;gap:10px 18px;list-style:none;padding:0;margin:0}
+.legend-row li{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+.legend-row strong{display:block;font-size:11px;line-height:1.4;color:#2b4333}
+.legend-row small{display:block;font-size:10px;line-height:1.4;color:#6b7764}
+.legend-row .legend-swatch{width:16px;height:20px;border-radius:5px;flex-basis:16px}
+.legend-row .legend-swatch.destination{width:14px;height:14px;border-radius:50%;flex-basis:14px}
+@media(max-width:760px){
+ .view-map .map-panel{display:flex}
+ .map-legend.legend-horizontal{padding:10px 12px}
+ .legend-heading{margin-bottom:8px}
+ .legend-heading>span{font-size:9px}
+ .legend-row{flex-wrap:nowrap;overflow-x:auto;gap:16px;padding-bottom:6px;scrollbar-width:thin;overscroll-behavior-x:contain}
+ .legend-row li{min-width:105px}
+ .map-canvas{width:100%}
+}
+@media(max-width:359px){.parking-icon{display:grid;min-width:28px;min-height:32px;padding:5px 7px}}

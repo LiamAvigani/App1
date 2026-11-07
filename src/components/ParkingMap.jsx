@@ -1,4 +1,5 @@
-import { useEffect, useRef } from "react";
+import {parkingColor} from "../parkingColors";
+﻿import { useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 export default function ParkingMap({center,radius,places,selected,onSelect,onCenter}){
@@ -22,7 +23,7 @@ export default function ParkingMap({center,radius,places,selected,onSelect,onCen
   const focused=places.find(p=>p.id===selected);
   const visiblePlaces=focused?[focused]:places;
   visiblePlaces.forEach(p=>{
-   const icon=L.divIcon({className:"",html:'<span class="map-pin '+(p.id===selected?'selected':'')+' '+(p.status==='unmetered_now'?'free':p.availability?.band||'unknown')+'">P</span>',iconSize:[32,36],iconAnchor:[16,36]});
+   const icon=L.divIcon({className:"",html:'<span class="map-pin '+(p.id===selected?'selected':'')+' '+parkingColor(p)+'">P</span>',iconSize:[32,36],iconAnchor:[16,36]});
    const marker=L.marker([p.lat,p.lng],{icon,keyboard:true,title:p.tags.name||"Parking"}).addTo(group);
    marker.on("click",()=>callbacks.current.onSelect(p.id));
    const label=document.createElement("span");label.textContent=p.tags.name||"Parking";marker.bindTooltip(label);

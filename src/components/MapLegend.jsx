@@ -1,12 +1,14 @@
 const entries=[
- ["likely","Green","Likely available","Historical estimate of 60% or higher."],
- ["possible","Amber","Possibly available","Historical estimate from 30% to under 60%."],
- ["unlikely","Red","Unlikely available","Historical estimate below 30%."],
- ["free","Blue","Reported outside paid hours","Vacancy is unknown. Check posted payment rules."],
- ["unknown","Gray","Availability unknown","No occupancy estimate, including mapped lots and garages."],
- ["destination","Navy dot","Your destination","The location your parking search is centered on."]
+ ["likely","Likely","60%+ estimated"],
+ ["possible","Possible","30–59% estimated"],
+ ["unlikely","Unlikely","Under 30% estimated"],
+ ["free","Reported off-hours","Vacancy unknown"],
+ ["unknown","Unknown","No availability data"],
+ ["destination","Destination","Your search location"]
 ];
 export default function MapLegend(){
- return <details className="map-legend"><summary><span>Parking pin colors</span><span className="legend-preview" aria-hidden="true">{entries.slice(0,5).map(([key])=><i key={key} className={"legend-swatch "+key}/>)}</span></summary>
- <div className="legend-content"><ul>{entries.map(([key,color,title,description])=><li key={key}><span className={"legend-swatch "+key} aria-hidden="true"/><div><strong>{color} — {title}</strong><p>{description}</p></div></li>)}</ul><p className="legend-note">An outlined, enlarged pin is your selected option. Colors never guarantee an empty space.</p></div></details>
+ return <section className="map-legend legend-horizontal" aria-label="Parking color guide">
+ <div className="legend-heading"><strong>Parking colors</strong><span>Same colors on cards and map · estimates, not guaranteed spaces</span></div>
+ <ul className="legend-row">{entries.map(([key,title,description])=><li key={key}><span className={"legend-swatch "+key} aria-hidden="true"/><span><strong>{title}</strong><small>{description}</small></span></li>)}</ul>
+ </section>
 }
