@@ -117,3 +117,21 @@ footer{font-size:11px}
  main:has(.sidebar-divider.dragging){user-select:none;cursor:col-resize}
 }
 @media(max-width:760px){.sidebar-divider{display:none}}
+
+.parking-metrics{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.parking-metric{display:flex;flex:1 1 108px;min-width:0;flex-direction:column;gap:5px;padding:11px 10px;border:1px solid #dbe5d4;border-radius:9px;background:#f2f6ed}
+.card .metric-label{font-size:10px;font-weight:750;line-height:1.35;letter-spacing:.5px;text-transform:uppercase;color:#43593b}
+.card .metric-value{display:block;font-size:26px;font-weight:850;line-height:1.15;letter-spacing:-.6px;color:#173e2c;font-variant-numeric:tabular-nums;white-space:normal;overflow-wrap:normal}
+.card .metric-value.metric-text{font-size:19px;letter-spacing:-.3px}
+.card .metric-caption{display:block;font-size:10px;line-height:1.45;font-weight:500;color:#526149;overflow-wrap:anywhere}
+.availability-metric.likely{background:#e8f5eb;border-color:#bbdfc4}
+.availability-metric.possible{background:#fff4de;border-color:#e7d29e}
+.availability-metric.unlikely{background:#fff0ee;border-color:#ebc3bf}
+.availability-metric.unknown{background:#f0f3f4;border-color:#d6dfe1}
+.card .availability-metric.possible .metric-value{color:#825106}
+.card .availability-metric.unlikely .metric-value{color:#a12e29}
+.card .availability-metric.unknown .metric-value{color:#42555b}
+.card-main{align-items:flex-start}
+.card-main>.parking-icon{margin-top:3px}
+.card-main>strong{padding-top:3px}
+@media(max-width:359px){.parking-metric{flex-basis:95px}.card .metric-value{font-size:24px}}
