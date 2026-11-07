@@ -13,11 +13,32 @@ export default function App(){
  const [sidebarWidth,setSidebarWidth]=useState(410);
  const [manualRevision,setManualRevision]=useState(0);
  const [mobileView,setMobileView]=useState("chat");
+ const [revealCard,setRevealCard]=useState(null);
  const [street,setStreet]=useState("all"),[shown,setShown]=useState(10);
  const [center,setCenter]=useState(initial),[query,setQuery]=useState(""),[choices,setChoices]=useState([]);
  const [radius,setRadius]=useState(1000),[fee,setFee]=useState("all"),[arrival,setArrival]=useState(""),[duration,setDuration]=useState(120);
  const [facilities,setFacilities]=useState([]),[facilityError,setFacilityError]=useState(""),[facilityLoading,setFacilityLoading]=useState(false),[kind,setKind]=useState("all");
  const [data,setData]=useState(null),[chat,setChat]=useState(null),[selected,setSelected]=useState(null),[loading,setLoading]=useState(true),[error,setError]=useState(""),[searchError,setSearchError]=useState(""),[searching,setSearching]=useState(false),[retry,setRetry]=useState(0);
+
+ function selectFromMap(id){
+  setSelected(id);
+  setMobileView("chat");
+  setRevealCard({id});
+ }
+ useEffect(()=>{
+  if(!revealCard||selected!==revealCard.id)return;
+  const frame=requestAnimationFrame(()=>{
+   const sidebar=document.getElementById("parking-sidebar");
+   const card=document.getElementById("parking-"+revealCard.id);
+   if(sidebar&&card){
+    card.querySelector(".card-main")?.focus({preventScroll:true});
+    const top=sidebar.scrollTop+card.getBoundingClientRect().top-sidebar.getBoundingClientRect().top-16;
+    sidebar.scrollTo({top:Math.max(0,top),behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});
+   }
+   setRevealCard(null);
+  });
+  return()=>cancelAnimationFrame(frame);
+ },[revealCard,selected,mobileView]);
  function applyChat(d,prefs){if(Number.isFinite(d.query?.lat)&&Number.isFinite(d.query?.lon))setCenter(c=>({lat:d.query.lat,lng:d.query.lon,name:d.destination_name||c.name}));setChat(d);setSelected(null);setStreet(prefs.street||"all");setShown(10);if(prefs.fee)setFee(prefs.fee);if(prefs.kind)setKind(prefs.kind);}
  function move(c){setManualRevision(n=>n+1);setStreet("all");setShown(10);setSelected(null);setChat(null);setCenter(c)}
  useEffect(()=>{
@@ -66,10 +87,10 @@ export default function App(){
  <div className="search-context"><span>Near {mapCenter.name}</span>{active?.query?.arrival_time&&<span>Arrival: {new Date(active.query.arrival_time).toLocaleString("en-US",{timeZone:"America/Los_Angeles",dateStyle:"medium",timeStyle:"short"})} Pacific · {active.query.duration_minutes||duration} min stay</span>}<span>{kind==="all"?"All parking":kind==="garage"?"Garages":kind==="lot"?"Lots":"Meters"} · {fee==="all"?"Any price":fee==="no"?"Free":"Paid"} · {((chat?.query?.radius_m||radius)/1609.344).toFixed(2)} mi</span></div>
  {selected&&<button className="text-button" onClick={()=>setSelected(null)}>Show all parking on map</button>}<div className="results-heading"><h2>{street==="all"?"Closest parking":street}</h2><span>{results.length} of {filtered.length}</span></div><p className="area">Showing the closest {results.length} matching options on the map.</p>
  <div aria-live="polite">{facilityLoading&&<p className="notice">Finding lots and garages…</p>}{facilityError&&<p className="notice">Lots and garages: {facilityError}</p>}{!chat&&loading&&<p className="notice">Finding nearby parking…</p>}{!chat&&error&&<p className="notice">{error} <button onClick={()=>setRetry(x=>x+1)}>Retry</button></p>}{(!loading||chat)&&!facilityLoading&&!results.length&&<p className="empty">No matching parking found. Increase distance or clear filters. Some facilities are not mapped.</p>}</div>
- {results.map(p=><article id={"parking-"+p.id} key={p.id} className={selected===p.id?"card active":"card"}><button className="card-main" onClick={()=>setSelected(p.id)}><span className={"parking-icon "+parkingColor(p)}>P</span><span><b>{p.tags.name}</b><small>{streetName(p)}</small><small>{p.kind==="meter"?"Street meter":p.kind==="garage"?"Garage":"Parking lot"}</small><small>{p.walk_minutes} min walk</small><ParkingMetrics spot={p}/>{p.limit_exceeded&&<small className="warning">Stay exceeds meter limit</small>}</span><strong>{p.miles.toFixed(2)}<small>mi away</small></strong></button>{selected===p.id&&<div className="details">{p.kind==="meter"?<MeterDetails spot={p}/>:<><p>{p.address}</p><p>Access: {p.access}. {p.access==="customers"?"Customers only.":""}</p><p>{p.hours||"Hours unknown"} · {p.capacity? p.capacity+" total spaces (not empty spaces)":"Capacity unknown"}</p><a href={p.source_url} target="_blank" rel="noreferrer">OpenStreetMap source ↗</a></>}<a target="_blank" rel="noreferrer" href={"https://www.google.com/maps/dir/?api=1&destination="+p.lat+","+p.lng+"&travelmode=driving"}>Get directions ↗</a></div>}</article>)}
+ {results.map(p=><article id={"parking-"+p.id} key={p.id} className={selected===p.id?"card active":"card"}><button className="card-main" aria-expanded={selected===p.id} onClick={()=>setSelected(p.id)}><span className={"parking-icon "+parkingColor(p)}>P</span><span><b>{p.tags.name}</b><small>{streetName(p)}</small><small>{p.kind==="meter"?"Street meter":p.kind==="garage"?"Garage":"Parking lot"}</small><small>{p.walk_minutes} min walk</small><ParkingMetrics spot={p}/>{p.limit_exceeded&&<small className="warning">Stay exceeds meter limit</small>}</span><strong>{p.miles.toFixed(2)}<small>mi away</small></strong></button>{selected===p.id&&<div className="details">{p.kind==="meter"?<MeterDetails spot={p}/>:<><p>{p.address}</p><p>Access: {p.access}. {p.access==="customers"?"Customers only.":""}</p><p>{p.hours||"Hours unknown"} · {p.capacity? p.capacity+" total spaces (not empty spaces)":"Capacity unknown"}</p><a href={p.source_url} target="_blank" rel="noreferrer">OpenStreetMap source ↗</a></>}<a target="_blank" rel="noreferrer" href={"https://www.google.com/maps/dir/?api=1&destination="+p.lat+","+p.lng+"&travelmode=driving"}>Get directions ↗</a></div>}</article>)}
  {shown<filtered.length&&<button className="show-more" onClick={()=>setShown(n=>n+10)}>Show 10 more ({filtered.length-shown} remaining)</button>}
  {shown>10&&<button className="text-button" onClick={()=>{setShown(10);setSelected(null)}}>Show only closest 10</button>}
 
  <footer>Lots and garages are mapped OpenStreetMap facilities; live vacancy is unknown. Customer-only restrictions may apply. Availability probabilities are historical estimates derived from City of San Diego payment transactions, not real-time parking sensors. Disabled placard holders and non-paying vehicles are not captured in payment feeds. Walking times are straight-line approximations. Check posted signs.{active?.data_as_of&&<p>Data as of {active.data_as_of}</p>}</footer>
- </aside><SidebarDivider width={sidebarWidth} onChange={setSidebarWidth}/><section className="map-panel" aria-label="Parking map"><MapLegend/><div className="map-canvas"><ParkingMap center={mapCenter} radius={(chat?.query?.radius_m||radius)/1609.344} places={results} selected={selected} onSelect={setSelected} onCenter={move}/><div className="map-label"><i/> Exploring {mapCenter.name}</div>{selected&&results.some(p=>p.id===selected)&&<button className="show-all-parking" onClick={()=>setSelected(null)}>← Show all parking</button>}{selected&&results.some(p=>p.id===selected)&&<button className="mobile-map-selection" onClick={()=>{setMobileView("chat");requestAnimationFrame(()=>document.getElementById("parking-"+selected)?.scrollIntoView({block:"center",behavior:"smooth"}))}}>View {results.find(p=>p.id===selected)?.tags.name} details →</button>}</div></section></main></div>
+ </aside><SidebarDivider width={sidebarWidth} onChange={setSidebarWidth}/><section className="map-panel" aria-label="Parking map"><MapLegend/><div className="map-canvas"><ParkingMap center={mapCenter} radius={(chat?.query?.radius_m||radius)/1609.344} places={results} selected={selected} onSelect={selectFromMap} onCenter={move}/><div className="map-label"><i/> Exploring {mapCenter.name}</div>{selected&&results.some(p=>p.id===selected)&&<button className="show-all-parking" onClick={()=>setSelected(null)}>← Show all parking</button>}{selected&&results.some(p=>p.id===selected)&&<button className="mobile-map-selection" onClick={()=>selectFromMap(selected)}>View {results.find(p=>p.id===selected)?.tags.name} details →</button>}</div></section></main></div>
 }
