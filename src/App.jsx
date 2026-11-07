@@ -1,6 +1,7 @@
 import {useEffect,useMemo,useState} from "react";
 import {streetName,filterByStreet} from "./parkingFilters";
 import {request,normalize} from "./api";
+import MapLegend from "./components/MapLegend";
 import ParkingMap from "./components/ParkingMap";
 import ParkingChat from "./components/ParkingChat";
 import MeterDetails from "./components/MeterDetails";
@@ -65,5 +66,5 @@ export default function App(){
  {shown>10&&<button className="text-button" onClick={()=>{setShown(10);setSelected(null)}}>Show only closest 10</button>}
 
  <footer>Lots and garages are mapped OpenStreetMap facilities; live vacancy is unknown. Customer-only restrictions may apply. Availability probabilities are historical estimates derived from City of San Diego payment transactions, not real-time parking sensors. Disabled placard holders and non-paying vehicles are not captured in payment feeds. Walking times are straight-line approximations. Check posted signs.{active?.data_as_of&&<p>Data as of {active.data_as_of}</p>}</footer>
- </aside><section className="map-panel" aria-label="Parking map"><ParkingMap center={mapCenter} radius={(chat?.query?.radius_m||radius)/1609.344} places={results} selected={selected} onSelect={setSelected} onCenter={move}/><div className="map-label"><i/> Exploring {mapCenter.name}</div>{selected&&results.some(p=>p.id===selected)&&<button className="show-all-parking" onClick={()=>setSelected(null)}>← Show all parking</button>}<div className="map-tip"><span>Tap or click the map to search here</span><small>Green: likely · Amber: possible · Red: unlikely · Gray: unknown</small></div>{selected&&results.some(p=>p.id===selected)&&<button className="mobile-map-selection" onClick={()=>{setMobileView("chat");requestAnimationFrame(()=>document.getElementById("parking-"+selected)?.scrollIntoView({block:"center",behavior:"smooth"}))}}>View {results.find(p=>p.id===selected)?.tags.name} details →</button>}</section></main></div>
+ </aside><section className="map-panel" aria-label="Parking map"><ParkingMap center={mapCenter} radius={(chat?.query?.radius_m||radius)/1609.344} places={results} selected={selected} onSelect={setSelected} onCenter={move}/><div className="map-label"><i/> Exploring {mapCenter.name}</div>{selected&&results.some(p=>p.id===selected)&&<button className="show-all-parking" onClick={()=>setSelected(null)}>← Show all parking</button>}<MapLegend/>{selected&&results.some(p=>p.id===selected)&&<button className="mobile-map-selection" onClick={()=>{setMobileView("chat");requestAnimationFrame(()=>document.getElementById("parking-"+selected)?.scrollIntoView({block:"center",behavior:"smooth"}))}}>View {results.find(p=>p.id===selected)?.tags.name} details →</button>}</section></main></div>
 }
