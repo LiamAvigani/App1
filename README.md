@@ -28,7 +28,7 @@ The backend must allow the frontend origin through CORS.
 
 - Address search within San Diego and browser location lookup
 - Interactive map with parking pins and click-to-search
-- Distance filtering up to 2 km
+- Distance filtering up to 2 miles
 - Arrival time, length of stay, and free/paid filters
 - Availability estimates, meter details, and directions
 - Parking assistant chat using structured API results
@@ -50,3 +50,5 @@ The service runs automatically inside Vite for development. For production run n
 Place lookup uses Nominatim/OpenStreetMap, with serialized upstream requests and a 10-minute bounded cache. This is suitable for a small deployment; use a dedicated geocoder for larger traffic. Discovery is not exhaustive. Private/no-access facilities are excluded; customer-only and unknown access are labeled. Facility coordinates may be centroids rather than vehicle entrances. Counts represent total capacity, never live vacancies.
 
 No live camera source was verified or integrated. No camera-based availability claims are made.
+
+Searches above 2000 meters combine bounded meter API queries, deduplicate poles, and recalculate distances from the requested destination. The provider returns at most 50 ranked meters per query, so coverage is not exhaustive. Chat accepts “within 2 miles”; requested distances above 2 miles are capped at 2 miles.

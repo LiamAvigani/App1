@@ -29,3 +29,5 @@ export function requestedArrival(text, now=new Date()){
  }
  return new Date(instant).toISOString();
 }
+
+export function requestedRadius(text){const match=text.match(/\b(?:within|radius(?: of)?|up to)\s+(\d+(?:\.\d+)?)\s*(?:miles?|mi)\b/i);return match?Math.round(Math.min(2,Math.max(.1,+match[1]))*1609.344):null;}

@@ -1,4 +1,5 @@
-const cache=new Map();
+import {wideSpots} from "./wideSpots.mjs";
+﻿const cache=new Map();
 let queue=Promise.resolve(),lastRequest=0;
 const agent="ParkingPilotSD/1.0 (https://github.com/LiamAvigani/App1)";
 export async function geocode(params){
@@ -25,6 +26,7 @@ export async function handler(req,res,next){
  function send(status,data){res.writeHead(status,{"Content-Type":"application/json"});res.end(JSON.stringify(data))}
  if(req.method!=="GET")return send(405,{detail:"GET required"});
  try{
+ if(url.pathname==="/discovery/spots")return send(200,await wideSpots(url.searchParams));
  if(url.pathname==="/discovery/places"){
  const q=(url.searchParams.get("q")||"").trim();
  if(q.length<2||q.length>200)return send(400,{detail:"Enter 2–200 characters."});
@@ -33,7 +35,7 @@ export async function handler(req,res,next){
  }
  if(url.pathname==="/discovery/parking"){
  const lat=Number(url.searchParams.get("lat")),lon=Number(url.searchParams.get("lon")),radius=Number(url.searchParams.get("radius_m")||1000);
- if(!url.searchParams.has("lat")||!url.searchParams.has("lon")||!Number.isFinite(lat)||lat<32.5||lat>33.3||!Number.isFinite(lon)||lon< -117.6||lon> -116.8||!Number.isFinite(radius)||radius<50||radius>2000)return send(400,{detail:"Choose a San Diego location and a distance between 50 and 2000 meters."});
+ if(!url.searchParams.has("lat")||!url.searchParams.has("lon")||!Number.isFinite(lat)||lat<32.5||lat>33.3||!Number.isFinite(lon)||lon< -117.6||lon> -116.8||!Number.isFinite(radius)||radius<50||radius>3219)return send(400,{detail:"Choose a San Diego location and a distance between 50 meters and 2 miles."});
  const dy=radius/111320,dx=dy/Math.cos(lat*Math.PI/180);
  const data=await geocode(new URLSearchParams({q:"[parking]",format:"jsonv2",addressdetails:"1",extratags:"1",limit:"40",bounded:"1",viewbox:[lon-dx,lat+dy,lon+dx,lat-dy].join(",")}));
  const results=data.map(p=>{

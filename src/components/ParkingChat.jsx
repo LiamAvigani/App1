@@ -1,6 +1,6 @@
 import {useEffect,useRef,useState} from "react";
 import {request} from "../api";
-import {chatPreferences,requestedArrival} from "../chatPreferences";
+import {chatPreferences,requestedArrival,requestedRadius} from "../chatPreferences";
 export default function ParkingChat({center,onResults,streets=[],onLocate}){
  const [messages,setMessages]=useState([]),[text,setText]=useState(""),[busy,setBusy]=useState(false),[error,setError]=useState("");
  const log=useRef(null),controller=useRef(null);
@@ -15,11 +15,12 @@ export default function ParkingChat({center,onResults,streets=[],onLocate}){
  let data=await request("/v1/chat",{method:"POST",headers:{"Content-Type":"application/json"},signal:controller.current.signal,body:JSON.stringify({messages:next,user_location:{lat:center.lat,lon:center.lng}})});
 
  const arrival=requestedArrival(question);
- if(arrival&&data.query){
- const params=new URLSearchParams({lat:data.query.lat,lon:data.query.lon,arrival_time:arrival,radius_m:data.query.radius_m||400,limit:50});
+ const requestedDistance=requestedRadius(question);
+ if((arrival||requestedDistance)&&data.query){
+ const params=new URLSearchParams({lat:data.query.lat,lon:data.query.lon,arrival_time:arrival||data.query.arrival_time||new Date().toISOString(),radius_m:requestedDistance||data.query.radius_m||400,limit:50});
  if(data.query.duration_minutes)params.set("duration_minutes",data.query.duration_minutes);
  const corrected=await request("/v1/spots?"+params,{signal:controller.current.signal});
- data={...data,...corrected,reply:"I updated your search for "+new Date(arrival).toLocaleString("en-US",{timeZone:"America/Los_Angeles",dateStyle:"medium",timeStyle:"short"})+" Pacific time. Your matching parking options are shown below."};
+ data={...data,...corrected,reply:"I updated your search for "+new Date(arrival||data.query.arrival_time||Date.now()).toLocaleString("en-US",{timeZone:"America/Los_Angeles",dateStyle:"medium",timeStyle:"short"})+" Pacific time. Your matching parking options are shown below."};
  }
  const prefs=chatPreferences(question,streets);
  if(prefs.kind&&prefs.kind!=="meter")data.reply="I�ll show "+(prefs.kind==="all"?"all parking types":prefs.kind==="garage"?"garages":"parking lots")+" near your requested destination. Mapped facilities do not report live vacancies.";
